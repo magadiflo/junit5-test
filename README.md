@@ -267,3 +267,87 @@ puesto que ahora la comparación la hará **por valor** y no por referencia. **�
 referenceAccountTest()?**, bueno este test va a fallar, porque ahora ya no estamos comparando por referencia, sino por
 valor, así que lo eliminamos del archivo de prueba y solo nos quedamos con el **valueAccountTest()**.
 
+## TDD para débito y crédito
+
+Coma aplicaremos **TDD**, primero crearemos nuestros dos métodos en la clase **Account** que serán probadas:
+
+````java
+public class Account {
+    /* omitted code */
+
+    public void debit(BigDecimal amount) {
+
+    }
+
+    public void credit(BigDecimal amount) {
+
+    }
+    /* omitted code */
+}
+````
+
+Los dos métodos anteriores están **sin implementar**, ahora toca crear las pruebas que verifiquen dichos métodos, ese
+es el objetivo de **TDD**, crear las pruebas y luego implementar los métodos. Nuestra primera prueba verifica el método
+**debit()** y el segundo el método **credit()**:
+
+````java
+class AccountTest {
+    @Test
+    void accountDebitTest() {
+        Account account = new Account("Martín", new BigDecimal("2000"));
+        account.debit(new BigDecimal("100")); //<-- ejecutamos el método a probar
+
+        assertNotNull(account.getBalance());
+        assertEquals(1900D, account.getBalance().doubleValue());
+        assertEquals("1900", account.getBalance().toPlainString());
+    }
+
+    @Test
+    void accountCreditTest() {
+        Account account = new Account("Martín", new BigDecimal("2000"));
+        account.credit(new BigDecimal("100")); //<-- ejecutando el método a probar
+
+        assertNotNull(account.getBalance());
+        assertEquals(2100D, account.getBalance().doubleValue());
+        assertEquals("2100", account.getBalance().toPlainString());
+    }
+}
+````
+
+En el caso del método **debit()**, lo que debería pasar es que internamente se debería **restar el balance(saldo)
+correspondiente a la cuenta** y bueno como resultado ya no debería haber **2000** sino **1900**. Pero como aún no
+tenemos implementada dicho método, el test fallará.
+
+````bash
+org.opentest4j.AssertionFailedError: 
+Expected :1900.0
+Actual   :2000.0
+````
+
+Lo mismo ocurrirá con el método **credit()**, lo que debería pasar internamente es que se debería **sumar el balance
+(saldo) correspondiente a la cuenta** y como resultado debería haber **2100**, pero como tampoco tenemos implementado
+dicho método, el test fallará.
+
+````bash
+org.opentest4j.AssertionFailedError: 
+Expected :2100.0
+Actual   :2000.0
+````
+
+Implementamos los métodos de la clase **Account**:
+
+````java
+public class Account {
+    public void debit(BigDecimal amount) {
+        this.balance = this.balance.subtract(amount);
+    }
+
+    public void credit(BigDecimal amount) {
+        this.balance = this.balance.add(amount);
+    }
+}
+````
+
+**Volvemos a ejecutar las pruebas** y esta vez veremos que todas las pruebas pasan, esto ocurre porque ya estamos
+actualizando el valor del atributo balance con el amount que nos pasan por parámetro. Si es **debit = restar,** pero si
+es **credit = sumar**.
