@@ -183,3 +183,87 @@ class AccountTest {
   valores, si el primer término es menor que (-1), si son iguales (0), pero si el primer término es mayor que (1).
 - **(3)**, debe ser verdadero que el saldo es mayor que 0.
 
+---
+
+## Test Driven Development (TDD) con JUnit
+
+Con TDD, primero creamos las pruebas luego implementamos la solución. Como primer ejemplo realizaremos un test que
+compare dos objetos con los mismos valores, pero la comparación lo haremos por referencia:
+
+````java
+class AccountTest {
+    @Test
+    void referenceAccountTest() {
+        Account account1 = new Account("Liz Gonzales", new BigDecimal("2500.00"));
+        Account account2 = new Account("Liz Gonzales", new BigDecimal("2500.00"));
+
+        assertNotEquals(account2, account1);
+    }
+}
+````
+
+El test anterior pasará la prueba, ya que **account1** y **account2** tienen referencias distintas, es decir, apuntan a
+distintas direcciones de memoria.
+
+Ahora, supongamos que las reglas del negocio cambian y nos piden comparar los dos objetos por valor, en esos términos,
+ambos objetos son iguales, ya que contienen los mismos valores.
+
+````java
+class AccountTest {
+    @Test
+    void valueAccountTest() {
+        Account account1 = new Account("Liz Gonzales", new BigDecimal("2500.00"));
+        Account account2 = new Account("Liz Gonzales", new BigDecimal("2500.00"));
+
+        assertEquals(account2, account1);
+    }
+}
+````
+
+Al hacer el test anterior, y sin haber modificado nada, la prueba va a fallar, ya que a pesar de que estamos tratando de
+comparar por valor, en realidad se están comparando por referencia como en el **referenceAccountTest()**, el mensaje que
+nos muestra es:
+
+````bash
+org.opentest4j.AssertionFailedError: 
+Expected :org.magadiflo.junit5.app.models.Account@6a396c1e
+Actual   :org.magadiflo.junit5.app.models.Account@6c3f5566
+````
+
+Entonces, la idea es que cuando hagamos las pruebas así tengamos objetos que apunten a direcciones de memorias distintas
+(referencia), mientras los objetos tengan los mismos valores en sus atributos, nos deberá mostrar que son iguales. Por
+defecto la comparación se hace por objeto, es decir por instancia o referencia de memoria. Si sobreescribimos el método
+**equals()** veremos, como se mencionó, la comparación por objeto:
+
+````java
+public class Account {
+    /* omitted code */
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+}
+
+````
+
+Para poder hacer la comparación por valor, debemos modificar el método **equals()**. Podemos usar el mismo IntelliJ IDEA
+para que nos genere el método implementado **equals()**:
+
+````java
+public class Account {
+    /* omitted code */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Account account = (Account) o;
+        return Objects.equals(person, account.person) && Objects.equals(balance, account.balance);
+    }
+}
+````
+
+Como sobreescribimos el método **equals()** de la clase **Account**, ahora el test **valueAccountTest()** va a pasar,
+puesto que ahora la comparación la hará **por valor** y no por referencia. **¿Y qué pasa con el test
+referenceAccountTest()?**, bueno este test va a fallar, porque ahora ya no estamos comparando por referencia, sino por
+valor, así que lo eliminamos del archivo de prueba y solo nos quedamos con el **valueAccountTest()**.
+

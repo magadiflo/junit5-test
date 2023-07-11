@@ -19,11 +19,20 @@ class AccountTest {
     }
 
     @Test
-    void balanceAccountTets() {
+    void balanceAccountTest() {
         Account account = new Account("Martín", new BigDecimal("2000"));
 
         assertEquals(2000D, account.getBalance().doubleValue());
         assertFalse(account.getBalance().compareTo(BigDecimal.ZERO) == -1);
         assertTrue(account.getBalance().compareTo(BigDecimal.ZERO) == 1);
     }
+
+    @Test
+    void valueAccountTest() {
+        Account account1 = new Account("Liz Gonzales", new BigDecimal("2500.00"));
+        Account account2 = new Account("Liz Gonzales", new BigDecimal("2500.00"));
+
+        assertEquals(account2, account1);
+    }
+
 }
