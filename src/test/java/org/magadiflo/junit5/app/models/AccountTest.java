@@ -18,4 +18,12 @@ class AccountTest {
         assertEquals(expected, real);
     }
 
+    @Test
+    void balanceAccountTets() {
+        Account account = new Account("Martín", new BigDecimal("2000"));
+
+        assertEquals(2000D, account.getBalance().doubleValue());
+        assertFalse(account.getBalance().compareTo(BigDecimal.ZERO) == -1);
+        assertTrue(account.getBalance().compareTo(BigDecimal.ZERO) == 1);
+    }
 }

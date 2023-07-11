@@ -160,7 +160,26 @@ public class Account {
 
 Ejecutamos nuevamente el test y vemos que **esta vez pasa la prueba.**
 
+## Escribiendo test para el balance (saldo)
 
+````java
+class AccountTest {
+    @Test
+    void balanceAccountTets() {
+        Account account = new Account("Martín", new BigDecimal("2000"));
 
+        assertEquals(2000D, account.getBalance().doubleValue());            //(1)
+        assertFalse(account.getBalance().compareTo(BigDecimal.ZERO) == -1); //(2)
+        assertTrue(account.getBalance().compareTo(BigDecimal.ZERO) == 1);   //(3)
+    }
+}
+````
 
+**DONDE**
+
+- **(1)**, verificamos que el saldo del objeto account sea igual al saldo esperado (2000). Como el tipo de dato del
+  saldo es un BigDecimal, una forma de hacer la comparación es convirtiéndolo en un double.
+- **(2)**, debe ser falso que el saldo de la cuenta sea menor que 0. El método **compareTo()** nos da 3 posibles
+  valores, si el primer término es menor que (-1), si son iguales (0), pero si el primer término es mayor que (1).
+- **(3)**, debe ser verdadero que el saldo es mayor que 0.
 
