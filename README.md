@@ -775,3 +775,28 @@ class AccountTest {
     }
 }
 ````
+
+## Ciclo de vida anotaciones @AfterAll y @BeforeAll
+
+A diferencia de las anotaciones **@AfterEach y @BeforeEach** las anotaciones **@AfterAll y @BeforeAll** se ejecutan una
+sola vez, **antes de la ejecución de todos los test** y al **finalizar la ejecución de todos los test.**
+
+````java
+class AccountTest {
+    @BeforeAll
+    static void beforeAll() {
+        System.out.println("Inicializando las pruebas");
+        System.out.println("=========================");
+    }
+
+    @AfterAll
+    static void afterAll() {
+        System.out.println("=========================");
+        System.out.println("Finalizando las pruebas");
+    }
+}
+````
+
+Como observamos los métodos **beforeAll() y afterAll()** son del tipo **estático** y eso es porque le pertenecen a la
+clase y no a la instancia, es decir estos métodos van a ser comunes a todas las instancias que se creen o dicho en otras
+palabras serán comunes a todos los métodos test.

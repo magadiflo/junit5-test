@@ -10,6 +10,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class AccountTest {
     Account account;
 
+    @BeforeAll
+    static void beforeAll() {
+        System.out.println("Inicializando las pruebas");
+        System.out.println("=========================");
+    }
+
+    @AfterAll
+    static void afterAll() {
+        System.out.println("=========================");
+        System.out.println("Finalizando las pruebas");
+    }
+
     @BeforeEach
     void setUp() {
         System.out.println("Iniciando método");
@@ -18,7 +30,7 @@ class AccountTest {
 
     @AfterEach
     void tearDown() {
-        System.out.println("Finalizando método");
+        System.out.println("Finalizando método\n");
     }
 
     @Test
