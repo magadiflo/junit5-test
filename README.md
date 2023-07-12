@@ -430,3 +430,70 @@ class AccountTest {
     }
 }
 ````
+
+## Añadiendo la clase Banco y la relación con las cuentas
+
+Creamos un nuevo modelo **Bank** donde crearemos un método a probar **transfer()**. Como estamos aplicando TDD, por
+ahora no implementamos el método, sino primero tenemos que definir nuestra prueba para ese método.
+
+````java
+public class Bank {
+    private String name;
+
+    /* Bank getters and getters */
+
+    public void transfer(Account origen, Account destinate, BigDecimal amount) {
+        // TODO por implementar
+    }
+}
+````
+
+Ahora, podemos crear el método de prueba en la misma clase **AccountTest** (así lo hace en el tutorial), pero hacer más
+limpio el trabajo, crearé una nueva clase de prueba llamada **BankTest**, ya que precisamente esa prueba le corresponde
+a la clase **Bank**.
+
+````java
+class BankTest {
+
+    @Test
+    void transferTest() {
+        Account origen = new Account("Martín", new BigDecimal("2000.50"));
+        Account destinate = new Account("Alicia", new BigDecimal("1500.50"));
+
+        Bank bank = new Bank();
+        bank.setName("Banco BBVA");
+
+        bank.transfer(origen, destinate, new BigDecimal("500.50"));
+
+        assertEquals(1500D, origen.getBalance().doubleValue());
+        assertEquals(2001D, destinate.getBalance().doubleValue());
+    }
+}
+````
+
+Si ejecutamos el método **transferTest()** veremos que fallará la prueba porque estamos usando TDD, es decir, primero
+acabamos de implementar el test, pero aún no tenemos implementado el método real:
+
+````bash
+org.opentest4j.AssertionFailedError: 
+Expected :1500.0
+Actual   :2000.5
+````
+
+Entonces, la implementación de nuestro método **transfer()** debería hacer que pase la prueba anterior.
+
+````java
+public class Bank {
+    private String name;
+
+    /* Bank getters and setters */
+
+    public void transfer(Account origen, Account destinate, BigDecimal amount) {
+        origen.debit(amount);
+        destinate.credit(amount);
+    }
+}
+````
+
+Ahora si tenemos implementada el método real, ejecutamos la prueba nuevamente y esta vez ya debería pasarla.
+
