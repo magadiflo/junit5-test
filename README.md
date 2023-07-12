@@ -603,3 +603,34 @@ public class Bank {
 ````
 
 Ahora sí, volvemos a ejecutar el test **relationshipBetweenBankAndAccounts()** y pasará la prueba.
+
+## Usando el método assertAll
+
+El **assertAll permite mostrar cada assertions que falla.** Si no usamos el assertAll, simplemente si en nuestro test
+tenemos varios assertions, si falla el primero los demás assertions no se ejecutarán, haciendo casi ineficiente el
+seguimiento de la prueba. A veces es necesario saber qué asserts pasaron y quienes fallaron.
+
+````java
+class BankTest {
+    @Test
+    void usingAssertAllMethod() {
+        Account account1 = new Account("Martín", new BigDecimal("2000.50"));
+        Account account2 = new Account("Alicia", new BigDecimal("1500.50"));
+        Account account3 = new Account("Alex", new BigDecimal("1500.50"));
+
+        Bank bank = new Bank();
+        bank.setName("Banco BBVA");
+        bank.addAccount(account1);
+        bank.addAccount(account2);
+        bank.addAccount(account3);
+
+        assertAll(() -> assertEquals(3, bank.getAccounts().size()),
+                () -> assertEquals("Banco BBVA", account1.getBank().getName()),
+                () -> {
+                    /* Si tenemos más de una línea de código sí habría que colocar las llaves */
+                    assertEquals("Banco BBVA", account2.getBank().getName());
+                },
+                () -> assertTrue(bank.getAccounts().stream().anyMatch(a -> a.getPerson().equals("Alex"))));
+    }
+}
+````
