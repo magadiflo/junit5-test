@@ -497,3 +497,109 @@ public class Bank {
 
 Ahora si tenemos implementada el método real, ejecutamos la prueba nuevamente y esta vez ya debería pasarla.
 
+## Probando y afirmando las relaciones entre Bank y Account
+
+Debemos agregar el atributo List<Account> en Bank y el atributo Bank en Account:
+
+````java
+public class Bank {
+    private String name;
+    private List<Account> accounts = new ArrayList<>(); //<-- importante inicializarlo sino lanzaría un NullPointerExc..
+
+    /* Setters and getters for name and accounts */
+
+    public void addAccount(Account account) {
+        this.accounts.add(account); //<--- Si accounts no está inicializada al usar el .add() lanzaría el NullPointer...
+    }
+
+    /* omitted method transfer */
+}
+````
+
+````java
+public class Account {
+    /* properties person and balance omitted */
+    private Bank bank;
+
+    /* omitted constructor, getters and setters */
+
+    public Bank getBank() {
+        return bank;
+    }
+
+    public void setBank(Bank bank) {
+        this.bank = bank;
+    }
+
+    /* omitted debit, credit and equals methods */
+}
+````
+
+Ahora probaremos la relación entre **Bank** y **Account**, como veremos la prueba pasará con éxito, ya que nuestro
+método **addAccount()** está almacenando internamente en la lista cada cuenta que se le pase:
+
+````java
+class BankTest {
+    @Test
+    void relationshipBetweenBankAndAccounts() {
+        Account origen = new Account("Martín", new BigDecimal("2000.50"));
+        Account destinate = new Account("Alicia", new BigDecimal("1500.50"));
+
+        Bank bank = new Bank();
+        bank.setName("Banco BBVA");
+        bank.addAccount(origen);
+        bank.addAccount(destinate);
+
+        assertEquals(2, bank.getAccounts().size(), "El banco debe tener 2 cuentas");
+    }
+}
+````
+
+Ahora, qué pasaría si queremos obtener a partir de la relación inversa el banco asociado, es decir, en este momento
+estoy obteniendo a partir del banco las dos cuentas asociadas porque lo almacenamos en una lista. Entonces si ahora
+quiero obtener a partir de la cuenta que se le asoció al banco, pues información del banco:
+``origen.getBank().getName()``:
+
+````java
+class BankTest {
+    @Test
+    void relationshipBetweenBankAndAccounts() {
+        Account origen = new Account("Martín", new BigDecimal("2000.50"));
+        Account destinate = new Account("Alicia", new BigDecimal("1500.50"));
+
+        Bank bank = new Bank();
+        bank.setName("Banco BBVA");
+        bank.addAccount(origen);
+        bank.addAccount(destinate);
+
+        assertEquals(2, bank.getAccounts().size());
+        assertEquals("Banco BBVA", origen.getBank().getName());
+        assertEquals("Banco BBVA", destinate.getBank().getName());
+        assertTrue(bank.getAccounts().stream().anyMatch(a -> a.getPerson().equals("Martín")));
+    }
+}
+````
+
+El test anterior fallará, puesto que se obtendrá un NullPointerException al hacer: ``origen.getBank().getName()``
+
+````bash
+java.lang.NullPointerException: Cannot invoke "org.magadiflo.junit5.app.models.Bank.getName()" because the return value
+of "org.magadiflo.junit5.app.models.Account.getBank()" is null
+````
+
+**¿Qué está pasando?**, lo que pasa es que cuando nosotros agregamos un nuevo account a través del método
+**addAccount()**, tan solo lo estamos agregando a la lista de cuentas, pero nos falta allí mismo decirle a la cuenta
+que se está agregando que el banco con el que se relacionará será ese mismo:
+
+````java
+public class Bank {
+    /* omitted code */
+    public void addAccount(Account account) {
+        account.setBank(this);
+        this.accounts.add(account);
+    }
+    /* omitted code */
+}
+````
+
+Ahora sí, volvemos a ejecutar el test **relationshipBetweenBankAndAccounts()** y pasará la prueba.
