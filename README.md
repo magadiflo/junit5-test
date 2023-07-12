@@ -800,3 +800,116 @@ class AccountTest {
 Como observamos los métodos **beforeAll() y afterAll()** son del tipo **estático** y eso es porque le pertenecen a la
 clase y no a la instancia, es decir estos métodos van a ser comunes a todas las instancias que se creen o dicho en otras
 palabras serán comunes a todos los métodos test.
+
+## Test condicionales @EnabledOnOs, @EnabledOnJre, @EnabledIfSystemProperty, etc.
+
+Los test condicionales se ejecutarán en cierto contexto, por ejemplo ejecutar una prueba solamente si es windows, o solo
+si es una versión x de java, etc.
+
+Creamos los test para ejecutar solo si es windows o Linux:
+
+````java
+public class AuxiliaryTest {
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void onlyWindowsTest() {
+        System.out.println("Ejecutando test para Windows!");
+    }
+
+    @Test
+    @EnabledOnOs(OS.LINUX)
+    void onlyLinuxTest() {
+        System.out.println("Ejecutando test para Linux!");
+    }
+
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void noExecuteInWindows() {
+        System.out.println("Este test no se está ejecutando en Windows");
+    }
+
+    @Test
+    @EnabledOnJre(JRE.JAVA_8)
+    void onlyJava8() {
+        System.out.println("Este test solo debe ejecutarse si usa java 8");
+    }
+
+    @Test
+    @EnabledOnJre(JRE.JAVA_17)
+    void onlyJava17() {
+        System.out.println("Este test solo debe ejecutarse si usa java 17");
+    }
+}
+````
+
+Este sería el resultado obtenido:
+![condicionales](./assets/condicionales.png)
+
+Crearemos otro test para habilitar o deshabilitar si existe cierta propiedad del sistema:
+
+````java
+public class AuxiliaryTest {
+    @Test
+    void printSystemProperties() {
+        Properties properties = System.getProperties();
+        properties.forEach((key, value) -> System.out.printf("%s : %s\n", key, value));
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "java.version", matches = "17.0.4.1")
+    void javaVersion() {
+        System.out.println("Ejecutando test para la versión exacta de java 17.0.4.1");
+    }
+
+    @Test
+    @DisabledIfSystemProperty(named = "os.arch", matches = ".*32.*")
+    void archOsVersion() {
+        System.out.println("Solo se ejecutará si la arquitectura del SO no es de 32bits");
+    }
+}
+````
+
+Como observamos en el código anterior hemos creado un test únicamente para imprimir todas las propiedades de nuestro
+sistema, con esos valores podemos crear los otros test, es decir con **java.version, os.arch** obtenidos de las
+propiedades impresas. A continuación mostramos algunas propiedades impresas:
+
+````
+java.specification.version : 17
+sun.cpu.isalist : amd64
+user.country.format : PE
+java.vm.specification.version : 17
+os.name : Windows 11
+user.home : C:\Users\USUARIO
+user.language : en
+java.home : C:\Program Files\Java\jdk-17.0.4.1
+user.name : USUARIO
+java.version : 17.0.4.1
+os.arch : amd64
+java.vm.specification.name : Java Virtual Machine Specification
+java.class.version : 61.0
+````
+
+### Creando variable del sistema
+
+Creamos un método test que se ejecutará solo si existe cierta propiedad personalizada, para crear dicha propiedad del
+sistema, **usaremos nuestro IDE IntelliJ IDEA**:
+
+- En el apartado de ejecución del proyecto, clicamos en el select y seleccionamos: **Edit configurations...**
+
+- Se abrirá una ventana, en el lado izquierdo seleccionamos **AuxiliaryTest** y en la parte derecha, sección **Build an
+  run** observaremos una propiedad colocada -ea, solo le agregamos lo siguiente **-DENV=dev,** finalmente quedaría:
+  **-ea -DENV=dev**, de esa manera hemos agregado nuestra propiedad ENV y su valor dev.
+
+- **NOTA:** -D, significa que vamos a configurar una propiedad del sistema(System property)
+
+- Finalmente, para ejecutar los test, debemos seleccionar **AuxiliaryTest** del select de configuraciones recientes.
+
+````java
+public class AuxiliaryTest {
+    @Test
+    @EnabledIfSystemProperty(named = "ENV", matches = "dev")
+    void devTest() {
+        System.out.println("Test ejecutado solo si existe la propiedad de sistema DEV con valor dev");
+    }
+}
+````
