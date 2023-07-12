@@ -871,7 +871,9 @@ public class AuxiliaryTest {
 
 Como observamos en el código anterior hemos creado un test únicamente para imprimir todas las propiedades de nuestro
 sistema, con esos valores podemos crear los otros test, es decir con **java.version, os.arch** obtenidos de las
-propiedades impresas. A continuación mostramos algunas propiedades impresas:
+propiedades impresas.
+
+A continuación mostramos algunas **propiedades de la máquina virtual de java:**
 
 ````
 java.specification.version : 17
@@ -887,9 +889,10 @@ java.version : 17.0.4.1
 os.arch : amd64
 java.vm.specification.name : Java Virtual Machine Specification
 java.class.version : 61.0
+....
 ````
 
-### Creando variable del sistema
+### Creando propiedad del sistema de la máquina virtual de java
 
 Creamos un método test que se ejecutará solo si existe cierta propiedad personalizada, para crear dicha propiedad del
 sistema, **usaremos nuestro IDE IntelliJ IDEA**:
@@ -913,3 +916,103 @@ public class AuxiliaryTest {
     }
 }
 ````
+
+## Ejecuciones de test condicionales con @EnabledIfEnvironmentVariable
+
+Al igual que hicimos con las propiedades del sistema (máquina virtual de java), ahora **nos toca imprimir las variables
+de entorno del sistema operativo:**
+
+````java
+public class AuxiliaryTest {
+    @Test
+    void printEnvironmentVariables() {
+        Map<String, String> getenv = System.getenv();
+        getenv.forEach((key, value) -> System.out.printf("%s : %s\n", key, value));
+    }
+}
+````
+
+Algunos resultados de imprimir las variables de entorno del sistema operativo:
+
+````
+USERDOMAIN_ROAMINGPROFILE : DESKTOP-EGDL8Q6
+NVM_SYMLINK : C:\Program Files\nodejs
+PROCESSOR_LEVEL : 6
+PROCESSOR_ARCHITECTURE : AMD64
+SystemDrive : C:
+USERNAME : USUARIO
+ProgramFiles(x86) : C:\Program Files (x86)
+ProgramData : C:\ProgramData
+ProgramW6432 : C:\Program Files
+HOMEPATH : \Users\USUARIO
+windir : C:\WINDOWS
+USERDOMAIN : DESKTOP-EGDL8Q6
+LOGONSERVER : \\DESKTOP-EGDL8Q6
+JAVA_HOME : C:\Program Files\Java\jdk-17.0.4.1
+OS : Windows_NT
+COMPUTERNAME : DESKTOP-EGDL8Q6
+SystemRoot : C:\WINDOWS
+TEMP : C:\Users\USUARIO\AppData\Local\Temp
+HOMEDRIVE : C:
+USERPROFILE : C:\Users\USUARIO
+TMP : C:\Users\USUARIO\AppData\Local\Temp
+CommonProgramFiles(x86) : C:\Program Files (x86)\Common Files
+NUMBER_OF_PROCESSORS : 8
+....
+````
+
+### Usando variables de ambiente del sistema operativo
+
+````java
+public class AuxiliaryTest {
+    @Test
+    @EnabledIfEnvironmentVariable(named = "JAVA_HOME", matches = "C:\\\\Program Files\\\\Java\\\\jdk-17.0.4.1")
+    void testJavaHome() {
+        System.out.println("Ejecutando test porque cumple la condición de la variable de ambiente");
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named = "NUMBER_OF_PROCESSORS", matches = "8")
+    void processorsNumber() {
+        System.out.println("Ejecutando test solo si tiene 8 procesadores");
+    }
+}
+````
+
+Para que se ejecute el test **testJavaHome()** debería cumplirse la condición de la anotación
+@EnabledIfEnvironmentVariable, donde el ``JAVA_HOME=C:\Program Files\Java\jdk-17.0.4.1``, nótese que agregamos 4 barras
+invertidas para poder escapar el caracter, ya que como el match acepta expresiones regulares, la barra invertida (\) es
+un caracter especial de las expresiones regulares, entonces escapándola con 4 barras invertidas podemos poner toda la
+url completa. Si colocamos solo 2 barras invertidas (\\), que es lo normal cuando se escapa el caracter \, en esa
+anotación no funcionará, lanzará un error, pero sí acepta los \\\\ para escapar.
+
+### Creando nuestras propias variables de ambiente del sistema operativo
+
+````java
+public class AuxiliaryTest {
+    @Test
+    @EnabledIfEnvironmentVariable(named = "ENVIRONMENT", matches = "dev")
+    void testEnvironmentDev() {
+        System.out.println("Ejecutando test solo si su variable de ambiente del SO es dev");
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named = "ENVIRONMENT", matches = "prod")
+    void testEnvironmentProd() {
+        System.out.println("Ejecutando test solo si su variable de ambiente del SO es prod");
+    }
+}
+````
+
+Si ejecutamos todos los test, el test anterior no será ejecutado, ya que no encontrará la variable **ENVIRONMENT**.
+Para que funcione debemos crear nuestra propia variable de ambiente del S.O., similar a la creación de la variable del
+sistema que creamos en apartados superiores:
+
+- En el apartado de ejecución del proyecto, clicamos en el select y seleccionamos: **Edit configurations...**
+
+- Se abrirá una ventana, en el lado izquierdo seleccionamos **AuxiliaryTest** y en la parte derecha, sección **Build an
+  run** observaremos una propiedad colocada -ea, solo le agregamos lo siguiente **-DENV=dev,** finalmente quedaría:
+  **-ea -DENV=dev**, observaremos un input **Environment variables**, allí escribimos nuestra variable de ambiente
+  personalizada: ``ENVIRONMENT=dev`` y listo.
+
+- Finalmente, para ejecutar los test, debemos seleccionar **AuxiliaryTest** del select de configuraciones recientes.

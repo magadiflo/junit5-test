@@ -3,6 +3,7 @@ package org.magadiflo.junit5.app;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.*;
 
+import java.util.Map;
 import java.util.Properties;
 
 public class AuxiliaryTest {
@@ -58,5 +59,35 @@ public class AuxiliaryTest {
     @EnabledIfSystemProperty(named = "ENV", matches = "dev")
     void devTest() {
         System.out.println("Test ejecutado solo si existe la propiedad de sistema DEV con valor dev");
+    }
+
+    @Test
+    void printEnvironmentVariables() {
+        Map<String, String> getenv = System.getenv();
+        getenv.forEach((key, value) -> System.out.printf("%s : %s\n", key, value));
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named = "JAVA_HOME", matches = "C:\\\\Program Files\\\\Java\\\\jdk-17.0.4.1")
+    void testJavaHome() {
+        System.out.println("Ejecutando test porque cumple la condición de la variable de ambiente");
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named = "NUMBER_OF_PROCESSORS", matches = "8")
+    void processorsNumber() {
+        System.out.println("Ejecutando test solo si tiene 8 procesadores");
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named = "ENVIRONMENT", matches = "dev")
+    void testEnvironmentDev() {
+        System.out.println("Ejecutando test solo si su variable de ambiente del SO es dev");
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named = "ENVIRONMENT", matches = "prod")
+    void testEnvironmentProd() {
+        System.out.println("Ejecutando test solo si su variable de ambiente del SO es prod");
     }
 }
