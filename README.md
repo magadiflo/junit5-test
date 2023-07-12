@@ -634,3 +634,49 @@ class BankTest {
     }
 }
 ````
+
+## Agregando mensajes de falla en los métodos assertions
+
+Podemos agregar un mensaje personalizado **solo cuando falle el assert** de esa forma tendremos una ide más exacta de lo
+que pasó:
+
+````java
+class AccountTest {
+    @Test
+    void accountCreditTest() {
+        Account account = new Account("Martín", new BigDecimal("2001"));
+        account.credit(new BigDecimal("100"));
+
+        assertNotNull(account.getBalance(), "La cuenta no puede ser nula");
+        assertEquals(2100D, account.getBalance().doubleValue(), "El valor obtenido no es igual al valor que se espera");
+        assertEquals("2100", account.getBalance().toPlainString(), "El valor obtenido no es igual al valor que se espera");
+    }
+}
+````
+
+Al ejecutar el test anterior, fallará mostrándonos en consola el mensaje que le dimos al assertion que falló:
+
+````bash
+org.opentest4j.AssertionFailedError: El valor obtenido no es igual al valor que se espera ==> 
+Expected :2100.0
+Actual   :2101.0
+````
+
+**Existe un problema con la forma de agregar el mensaje a los assert** y es que los mensajes que son String, **así tal
+cual lo colocamos siempre se van a instanciar**, se van a crear, a pesar de que el test pase exitosamente, los mensajes
+String sí o sí se crearán. Para evitar que eso pase, es decir, que los mensajes se creen **solo si el assert falla**,
+debemos usar una **expresión lamba** para que construya el mensaje a futuro, solo si el assert falla.
+
+````java
+class AccountTest {
+    @Test
+    void accountCreditTest() {
+        Account account = new Account("Martín", new BigDecimal("2000"));
+        account.credit(new BigDecimal("100"));
+
+        assertNotNull(account.getBalance(), () -> "La cuenta no puede ser nula");
+        assertEquals(2100D, account.getBalance().doubleValue(), () -> "El valor obtenido no es igual al valor que se espera");
+        assertEquals("2100", account.getBalance().toPlainString(), () -> "El valor obtenido no es igual al valor que se espera");
+    }
+}
+````

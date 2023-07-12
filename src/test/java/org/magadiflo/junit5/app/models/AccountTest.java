@@ -51,9 +51,9 @@ class AccountTest {
         Account account = new Account("Martín", new BigDecimal("2000"));
         account.credit(new BigDecimal("100"));
 
-        assertNotNull(account.getBalance());
-        assertEquals(2100D, account.getBalance().doubleValue());
-        assertEquals("2100", account.getBalance().toPlainString());
+        assertNotNull(account.getBalance(), () -> "La cuenta no puede ser nula");
+        assertEquals(2100D, account.getBalance().doubleValue(), () -> "El valor obtenido no es igual al valor que se espera");
+        assertEquals("2100", account.getBalance().toPlainString(), () -> "El valor obtenido no es igual al valor que se espera");
     }
 
     @Test
