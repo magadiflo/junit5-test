@@ -680,3 +680,49 @@ class AccountTest {
     }
 }
 ````
+
+---
+
+## Usando anotaciones @DisplayName y @Disabled
+
+Con **@DisplayName** le damos un nombre a nuestro test, por defecto el nombre del test será el nombre del método. Este
+nombre será reflejado en la consola, al momento de ejecutar el test.
+
+````java
+class AccountTest {
+    @Test
+    @DisplayName("Probando que dos objetos sean iguales")
+    void valueAccountTest() {
+        Account account1 = new Account("Liz Gonzales", new BigDecimal("2500.00"));
+        Account account2 = new Account("Liz Gonzales", new BigDecimal("2500.00"));
+
+        assertEquals(account2, account1);
+    }
+}
+````
+
+El método que tenga anotado el **@Disabled** es para decirle a JUnit que se salte ese test, que no lo pruebe, ya que
+está deshabilitado. Al momento de ejecutar el test, en la consola **veremos todos los test evaluados con un [check]**
+mientras que **aquellos anotados con @Disabled no se habrán testeado y tendrán un ícono distinto**
+
+````java
+class AccountTest {
+    @Test
+    @Disabled
+    void insufficientMoneyException() {
+        Account account = new Account("Martín", new BigDecimal("2000"));
+
+        InsufficientMoneyException exception = assertThrows(InsufficientMoneyException.class, () -> {
+            account.debit(new BigDecimal("5000"));
+        }, "Se esperaba que InsufficientMoneyException fuera lanzado");
+
+        assertEquals(InsufficientMoneyException.class, exception.getClass());
+        assertEquals("Dinero insuficiente", exception.getMessage());
+    }
+}
+````
+
+El test anterior fue anotado con **@Disabled**, por lo tanto nos mostrará de la siguiente manera al ejecutar todos los
+test:
+![Anotación con disabled](./assets/anotacion-disabled.png)
+

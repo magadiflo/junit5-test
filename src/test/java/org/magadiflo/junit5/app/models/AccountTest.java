@@ -1,5 +1,7 @@
 package org.magadiflo.junit5.app.models;
 
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.magadiflo.junit5.app.exceptions.InsufficientMoneyException;
 
@@ -10,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class AccountTest {
 
     @Test
+    @DisplayName("Probando nombre de la cuenta")
     void accountNameTest() {
         Account account = new Account("Martín", new BigDecimal("2000"));
 
@@ -20,6 +23,7 @@ class AccountTest {
     }
 
     @Test
+    @DisplayName("Probando el saldo de la cuenta")
     void balanceAccountTest() {
         Account account = new Account("Martín", new BigDecimal("2000"));
 
@@ -29,6 +33,7 @@ class AccountTest {
     }
 
     @Test
+    @DisplayName("Probando que dos objetos sean iguales")
     void valueAccountTest() {
         Account account1 = new Account("Liz Gonzales", new BigDecimal("2500.00"));
         Account account2 = new Account("Liz Gonzales", new BigDecimal("2500.00"));
@@ -57,6 +62,7 @@ class AccountTest {
     }
 
     @Test
+    @Disabled
     void insufficientMoneyException() {
         Account account = new Account("Martín", new BigDecimal("2000"));
 

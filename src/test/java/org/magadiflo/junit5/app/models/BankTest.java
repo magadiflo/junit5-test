@@ -1,5 +1,6 @@
 package org.magadiflo.junit5.app.models;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -39,6 +40,7 @@ class BankTest {
     }
 
     @Test
+    @DisplayName("Usando AssertAll para ver qué asserts fallan")
     void usingAssertAllMethod() {
         Account account1 = new Account("Martín", new BigDecimal("2000.50"));
         Account account2 = new Account("Alicia", new BigDecimal("1500.50"));
