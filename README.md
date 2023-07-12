@@ -351,3 +351,82 @@ public class Account {
 **Volvemos a ejecutar las pruebas** y esta vez veremos que todas las pruebas pasan, esto ocurre porque ya estamos
 actualizando el valor del atributo balance con el amount que nos pasan por parámetro. Si es **debit = restar,** pero si
 es **credit = sumar**.
+
+## Probando y afirmando excepciones con assertThrows en JUnit 5
+
+Simularemos la ocurrencia de una excepción cuando se llame al método **debit()** y se reste el balance (saldo), cuando
+el balance tenga un valor negativo, entonces lanzaremos la excepción **InsufficientMoneyException**. Para eso, creamos
+primero nuestra excepción:
+
+````java
+public class InsufficientMoneyException extends RuntimeException {
+    public InsufficientMoneyException(String message) {
+        super(message);
+    }
+}
+````
+
+Nuevamente, como estamos usando **TDD** crearemos el test para verificar si el método **debit()** lanza la excepción
+**InsufficientMoneyException** cuando el amount que se le pasa por parámetro es más de lo que puede restar.
+
+````java
+class AccountTest {
+    @Test
+    void insufficientMoneyException() {
+        Account account = new Account("Martín", new BigDecimal("2000"));
+
+        InsufficientMoneyException exception = assertThrows(InsufficientMoneyException.class, () -> {
+            account.debit(new BigDecimal("5000")); //<-- Método que lanza la excepción
+        });
+
+        assertEquals(InsufficientMoneyException.class, exception.getClass());
+        assertEquals("Dinero insuficiente", exception.getMessage());
+    }
+}
+````
+
+Si ejecutamos el test anterior, la prueba fallará, ya que aún no tenemos implementado el lanzamiento de la excepción:
+
+````bash
+org.opentest4j.AssertionFailedError: Expected org.magadiflo.junit5.app.exceptions.InsufficientMoneyException to be thrown, but nothing was thrown.
+````
+
+Implementamos el método **debit()** para lanzar la excepción personalizada:
+
+````java
+public class Account {
+    /* omitted code */
+    public void debit(BigDecimal amount) {
+        BigDecimal newBalance = this.balance.subtract(amount);
+        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InsufficientMoneyException("Dinero insuficiente");
+        }
+        this.balance = newBalance;
+    }
+    /* omitted code */
+}
+````
+
+Ahora podemos ejecutar el test que creamos al inicio para verificar el lanzamiento de esta excepción. **Como resultado
+observaremos que el test pasa,** eso significa que implementamos correctamente el lanzamiento de la excepción.
+
+**NOTA**
+
+Podemos agregar un mensaje propio a nuestro **assertThrows()**, del tal forma que cuando falle la excepción veamos en
+pantalla nuestro mensaje, por ejemplo:
+
+````java
+class AccountTest {
+    @Test
+    void insufficientMoneyException() {
+        Account account = new Account("Martín", new BigDecimal("2000"));
+
+        InsufficientMoneyException exception = assertThrows(InsufficientMoneyException.class, () -> {
+            account.debit(new BigDecimal("5000"));
+        }, "Se esperaba que InsufficientMoneyException fuera lanzado"); //<-- Nuestro mensaje a mostrar cuando falle
+
+        assertEquals(InsufficientMoneyException.class, exception.getClass());
+        assertEquals("Dinero insuficiente", exception.getMessage());
+    }
+}
+````

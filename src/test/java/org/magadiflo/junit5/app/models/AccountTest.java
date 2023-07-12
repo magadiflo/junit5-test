@@ -1,6 +1,7 @@
 package org.magadiflo.junit5.app.models;
 
 import org.junit.jupiter.api.Test;
+import org.magadiflo.junit5.app.exceptions.InsufficientMoneyException;
 
 import java.math.BigDecimal;
 
@@ -53,5 +54,17 @@ class AccountTest {
         assertNotNull(account.getBalance());
         assertEquals(2100D, account.getBalance().doubleValue());
         assertEquals("2100", account.getBalance().toPlainString());
+    }
+
+    @Test
+    void insufficientMoneyException() {
+        Account account = new Account("Martín", new BigDecimal("2000"));
+
+        InsufficientMoneyException exception = assertThrows(InsufficientMoneyException.class, () -> {
+            account.debit(new BigDecimal("5000"));
+        }, "Se esperaba que InsufficientMoneyException fuera lanzado");
+
+        assertEquals(InsufficientMoneyException.class, exception.getClass());
+        assertEquals("Dinero insuficiente", exception.getMessage());
     }
 }
