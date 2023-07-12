@@ -1,8 +1,6 @@
 package org.magadiflo.junit5.app.models;
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.magadiflo.junit5.app.exceptions.InsufficientMoneyException;
 
 import java.math.BigDecimal;
@@ -10,14 +8,24 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AccountTest {
+    Account account;
+
+    @BeforeEach
+    void setUp() {
+        System.out.println("Iniciando método");
+        this.account = new Account("Martín", new BigDecimal("2000"));
+    }
+
+    @AfterEach
+    void tearDown() {
+        System.out.println("Finalizando método");
+    }
 
     @Test
     @DisplayName("Probando nombre de la cuenta")
     void accountNameTest() {
-        Account account = new Account("Martín", new BigDecimal("2000"));
-
         String expected = "Martín";
-        String real = account.getPerson();
+        String real = this.account.getPerson();
 
         assertEquals(expected, real);
     }
@@ -25,11 +33,9 @@ class AccountTest {
     @Test
     @DisplayName("Probando el saldo de la cuenta")
     void balanceAccountTest() {
-        Account account = new Account("Martín", new BigDecimal("2000"));
-
-        assertEquals(2000D, account.getBalance().doubleValue());
-        assertFalse(account.getBalance().compareTo(BigDecimal.ZERO) == -1);
-        assertTrue(account.getBalance().compareTo(BigDecimal.ZERO) == 1);
+        assertEquals(2000D, this.account.getBalance().doubleValue());
+        assertFalse(this.account.getBalance().compareTo(BigDecimal.ZERO) == -1);
+        assertTrue(this.account.getBalance().compareTo(BigDecimal.ZERO) == 1);
     }
 
     @Test
@@ -43,31 +49,27 @@ class AccountTest {
 
     @Test
     void accountDebitTest() {
-        Account account = new Account("Martín", new BigDecimal("2000"));
-        account.debit(new BigDecimal("100"));
+        this.account.debit(new BigDecimal("100"));
 
-        assertNotNull(account.getBalance());
-        assertEquals(1900D, account.getBalance().doubleValue());
-        assertEquals("1900", account.getBalance().toPlainString());
+        assertNotNull(this.account.getBalance());
+        assertEquals(1900D, this.account.getBalance().doubleValue());
+        assertEquals("1900", this.account.getBalance().toPlainString());
     }
 
     @Test
     void accountCreditTest() {
-        Account account = new Account("Martín", new BigDecimal("2000"));
-        account.credit(new BigDecimal("100"));
+        this.account.credit(new BigDecimal("100"));
 
-        assertNotNull(account.getBalance(), () -> "La cuenta no puede ser nula");
-        assertEquals(2100D, account.getBalance().doubleValue(), () -> "El valor obtenido no es igual al valor que se espera");
-        assertEquals("2100", account.getBalance().toPlainString(), () -> "El valor obtenido no es igual al valor que se espera");
+        assertNotNull(this.account.getBalance(), () -> "La cuenta no puede ser nula");
+        assertEquals(2100D, this.account.getBalance().doubleValue(), () -> "El valor obtenido no es igual al valor que se espera");
+        assertEquals("2100", this.account.getBalance().toPlainString(), () -> "El valor obtenido no es igual al valor que se espera");
     }
 
     @Test
     @Disabled
     void insufficientMoneyException() {
-        Account account = new Account("Martín", new BigDecimal("2000"));
-
         InsufficientMoneyException exception = assertThrows(InsufficientMoneyException.class, () -> {
-            account.debit(new BigDecimal("5000"));
+            this.account.debit(new BigDecimal("5000"));
         }, "Se esperaba que InsufficientMoneyException fuera lanzado");
 
         assertEquals(InsufficientMoneyException.class, exception.getClass());

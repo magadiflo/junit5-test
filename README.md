@@ -722,7 +722,56 @@ class AccountTest {
 }
 ````
 
-El test anterior fue anotado con **@Disabled**, por lo tanto nos mostrará de la siguiente manera al ejecutar todos los
+El test anterior fue anotado con **@Disabled**, por lo tanto, nos mostrará de la siguiente manera al ejecutar todos los
 test:
 ![Anotación con disabled](./assets/anotacion-disabled.png)
 
+--- 
+
+## Ciclo de vida anotaciones @AfterEach y @BeforeEach
+
+El ciclo de vida es el proceso en el cual se crea una instancia, en nuestro caso la creación de la instancia
+**AccountTest y BankTest**, se administra de alguna forma y luego se termina esta instancia. También se nos otorga la
+posibilidad de **usar Hooks que son eventos que se ejecutarán antes o después de cada método tests: @AfterEach,
+@BeforeEach, @BeforeAll, @AfterAll.**
+
+Importante, cuando ejecutemos una clase test, por ejemplo **AccountTest**, cada que evalúa un nuevo método test a probar
+se creará por cada método test una instancia distinta de la clase **AccountTest**. El orden de ejecución de los métodos
+es aleatorio y esa es la idea, puesto que estamos trabajando con **Unit Test**, es decir los test deben ser
+independientes (no depender de otros test).
+
+Ahora, usaremos el método **@BeforeEach** para inicializar previamente un objeto cada vez que se vaya a ejecutar un
+test. Para eso refactorizaremos los métodos test que tenemos hasta ahora para ver que el código que se repite es
+``Account account = new Account("Martín", new BigDecimal("2000"))``, esa instancia la podemos definir en el método
+anotado con @BeforeEach, de esa forma reutilizaríamos el código también. No tenemos que preocuparnos si en algún método
+test el objeto definido en el @BeforeEach es modificado o cambiado, eso no afectará la ejecución de los otros test, ya
+que antes de ejecutarse un método test, previamente se vuelve a ejecutar el @BeforeEach instanciando nuevamente los
+valores definidos en dicho método.
+
+````java
+class AccountTest {
+    Account account;
+
+    // Antes de cada método test
+    @BeforeEach
+    void setUp() {
+        System.out.println("Iniciando método");
+        this.account = new Account("Martín", new BigDecimal("2000"));
+    }
+
+    // Después de cada método test
+    @AfterEach
+    void tearDown() {
+        System.out.println("Finalizando método");
+    }
+
+    @Test
+    void accountCreditTest() {
+        this.account.credit(new BigDecimal("100"));
+
+        assertNotNull(this.account.getBalance(), () -> "La cuenta no puede ser nula");
+        assertEquals(2100D, this.account.getBalance().doubleValue(), () -> "El valor obtenido no es igual al valor que se espera");
+        assertEquals("2100", this.account.getBalance().toPlainString(), () -> "El valor obtenido no es igual al valor que se espera");
+    }
+}
+````
