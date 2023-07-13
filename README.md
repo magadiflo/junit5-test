@@ -1262,3 +1262,73 @@ public class AuxiliaryTest4 {
 
 ![parameterized-test-1.png](./assets/parameterized-test-1.png)
 
+## Pruebas parametrizadas con @ParameterizedTest parte 2
+
+Existen otras formas de tipos de entradas, en el capítulo anterior vimos el uso de **@ValueSource()**, en esta nueva
+sección veremos el uso de **CSVSource()**:
+
+````java
+public class AuxiliaryTest4 {
+    @ParameterizedTest(name = "número {index} ejecutando con valor {argumentsWithNames}")
+    @CsvSource({"1,100", "2,200", "3,300", "4,500", "5,700", "6,1000", "7,2000"})
+    void accountDebitCsvSourceTest(String index, String amount) {
+        System.out.printf("%s -> %s\n", index, amount);
+        Account account = new Account("Martín", new BigDecimal("2000"));
+        account.debit(new BigDecimal(amount));
+
+        assertNotNull(account.getBalance());
+        assertTrue(account.getBalance().compareTo(BigDecimal.ZERO) > 0);
+    }
+}
+````
+
+Otra anotación es el **@CsvFile()**, podemos tener un archivo **csv** de donde podemos obtener los datos para ejecutar
+este test:
+
+````java
+public class AuxiliaryTest4 {
+    @ParameterizedTest(name = "número {index} ejecutando con valor {argumentsWithNames}")
+    @CsvFileSource(resources = "/data.csv")
+    void accountDebitCsvFileSourceTest(String amount) {
+        Account account = new Account("Martín", new BigDecimal("2000"));
+        account.debit(new BigDecimal(amount));
+
+        assertNotNull(account.getBalance());
+        assertTrue(account.getBalance().compareTo(BigDecimal.ZERO) > 0);
+    }
+}
+````
+
+El archivo **data.csv** debemos crearlo en el directorio **/src/main/resources**, y este debe contener los valores a
+testear, en nuestro caso serían:
+
+````
+100
+200
+300
+400
+700
+1000
+2000
+````
+
+Otra forma es usando la anotación **@MethodSource("amountList")** y definiendo en su interior el nombre del método
+estático que devolverá la lista de valores a probar:
+
+````java
+public class AuxiliaryTest4 {
+    @ParameterizedTest(name = "número {index} ejecutando con valor {argumentsWithNames}")
+    @MethodSource("amountList")
+    void accountDebitMethodSourceTest(String amount) {
+        Account account = new Account("Martín", new BigDecimal("2000"));
+        account.debit(new BigDecimal(amount));
+
+        assertNotNull(account.getBalance());
+        assertTrue(account.getBalance().compareTo(BigDecimal.ZERO) > 0);
+    }
+
+    private static List<String> amountList() {
+        return List.of("100", "200", "300", "500", "700", "1000", "2000");
+    }
+}
+````
