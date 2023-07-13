@@ -1016,3 +1016,46 @@ sistema que creamos en apartados superiores:
   personalizada: ``ENVIRONMENT=dev`` y listo.
 
 - Finalmente, para ejecutar los test, debemos seleccionar **AuxiliaryTest** del select de configuraciones recientes.
+
+## Ejecución de test condicional con Assumptions programáticamente
+
+Los **assumptions** permiten evaluar una expresión **true o false** de forma programática, muy parecida a las
+anotaciones **@EnabledIf...**, pero dentro del código, es decir si se cumple la condición de manera programática
+se ejecutará el test.
+
+````java
+public class AuxiliaryTest {
+    @Test
+    void balanceAccountTestOnlyIfDev() {
+        boolean isDev = "dev".equals(System.getProperty("ENV"));
+
+        Assumptions.assumeTrue(isDev); //<-- Si es true, continuamos con la ejecución del test, caso contrario queda como deshabilitado
+
+        Account account = new Account("Martín", new BigDecimal("2000"));
+        assertEquals(2000D, account.getBalance().doubleValue());
+    }
+}
+````
+
+Del test anterior, **si se cumple la condición, se ejecutará el test**, en **caso contrario aparecerá deshabilitado** en
+consola.
+
+Otra forma de usar la condición es con el **Assumptions.assumingThat(condición, prueba)**, si no se cumple la condición
+no se ejecutará el test definido dentro de la expresión lamba, pero a diferencia del test anterior, en consola se
+mostrará como ejecutado, con el símbolo de [check] es porque continuó ejecutando el test que viene después del
+**Assumptions.assumingThat(....)**.
+
+````java
+public class AuxiliaryTest {
+    @Test
+    void balanceAccountTestOnlyIfDevWithAssumeThat() {
+        boolean isDev = "dev".equals(System.getProperty("ENV"));
+
+        Assumptions.assumingThat(isDev, () -> {
+            Account account = new Account("Martín", new BigDecimal("2000"));
+            assertEquals(2000D, account.getBalance().doubleValue());
+        });
+        System.out.println("Ejecutando algún otro test");
+    }
+}
+````

@@ -1,10 +1,15 @@
 package org.magadiflo.junit5.app;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.*;
+import org.magadiflo.junit5.app.models.Account;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AuxiliaryTest {
     @Test
@@ -89,5 +94,26 @@ public class AuxiliaryTest {
     @EnabledIfEnvironmentVariable(named = "ENVIRONMENT", matches = "prod")
     void testEnvironmentProd() {
         System.out.println("Ejecutando test solo si su variable de ambiente del SO es prod");
+    }
+
+    @Test
+    void balanceAccountTestOnlyIfDev() {
+        boolean isDev = "dev".equals(System.getProperty("ENV"));
+
+        Assumptions.assumeTrue(isDev);
+
+        Account account = new Account("Martín", new BigDecimal("2000"));
+        assertEquals(2000D, account.getBalance().doubleValue());
+    }
+
+    @Test
+    void balanceAccountTestOnlyIfDevWithAssumeThat() {
+        boolean isDev = "dev".equals(System.getProperty("ENV"));
+
+        Assumptions.assumingThat(isDev, () -> {
+            Account account = new Account("Martín", new BigDecimal("2000"));
+            assertEquals(2000D, account.getBalance().doubleValue());
+        });
+        System.out.println("Ejecutando algún otro test");
     }
 }
