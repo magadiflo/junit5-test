@@ -1210,3 +1210,55 @@ public class AuxiliaryTest3 {
     }
 }
  ````
+
+---
+
+## Escribiendo pruebas parametrizadas con @ParameterizedTest
+
+Es similar al **@RepeatedTest**, pero la diferencia es que con **@ParameterizedTest** repetimos la prueba del código,
+pero pasando distintos datos de entrada, distintos inputs que debemos proveerle.
+
+Por ejemplo, ejecutaremos el siguiente test parametrizado, definiéndole los valores o parámetros en la anotación
+**@ValueSource**:
+
+````java
+public class AuxiliaryTest4 {
+    @ParameterizedTest
+    @ValueSource(strings = {"100", "200", "300", "500", "700", "1000", "2000"})
+    void accountDebitTest(String amount) {
+        Account account = new Account("Martín", new BigDecimal("2000"));
+        account.debit(new BigDecimal(amount));
+
+        assertNotNull(account.getBalance());
+        assertTrue(account.getBalance().compareTo(BigDecimal.ZERO) > 0);
+    }
+}
+````
+
+**NOTA**
+> Nosotros usamos Strings (@ValueSource(strings = {"100", "200",...), pero podríamos haber usado otro tipo de dato, como
+> un ints, doubles, etc.. todo depende de qué tipo de dato queremos pasar. Además, el tipo de dato que definimos en la
+> anotación @ValueSource de ser el mismo tipo de dato que usemos al inyectar por parámetro, en nuestro caso definimos
+> strings, por lo tanto el tipo de dato a inyectar por parámetro del método también será del tipo String.
+
+Al ejecutar el test anterior veremos que el único que falla es el último valor **2000**, ya que si quito los 2000 a mi
+saldo actual que es 2000 quedaría en cero, por lo tanto, no cumpliría el **assertTrue** que tiene que ser mayor que
+cero:
+
+![parameterized-test.png](./assets/parameterized-test.png)
+
+Podemos cambiarle el nombre de cada repetición dentro de la anotación **@ParameterizedTest()**:
+
+````java
+public class AuxiliaryTest4 {
+    @ParameterizedTest(name = "número {index} ejecutando con valor {argumentsWithNames}")
+    @ValueSource(strings = {"100", "200", "300", "500", "700", "1000", "2000"})
+    void accountDebitTest(String amount) { /* omitted code */ }
+}
+````
+
+**NOTA**
+> Se puede usar en vez del {argumentsWithNames} el {0} que daría el mismo resultado.
+
+![parameterized-test-1.png](./assets/parameterized-test-1.png)
+
