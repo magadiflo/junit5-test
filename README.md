@@ -1422,3 +1422,67 @@ public class AuxiliaryTest5 {
 Al ejecutar el test anterior, veremos que solo se ejecutarán los test que tienen el **@Tag("account")**:
 
 ![tag.png](./assets/tag.png)
+
+---
+
+## Inyección de dependencias y Componentes testInfo y testReporter
+
+TestInfo y testReporter **es parte de la inyección de dependencia de JUnit**, lo podemos **usar en cada método test**
+o si es que queremos que se apliquen a todos los métodos test, podemos aprovechar el ciclo de vida **@BeforeEach** e
+inyectar las dependencias en dicho método, así se aplicará todos los test:
+
+````java
+public class AuxiliaryTest6 {
+    Account account;
+
+    @BeforeEach
+    void setUp(TestInfo testInfo, TestReporter testReporter) {
+        this.account = new Account("Martín", new BigDecimal("2000"));
+
+        System.out.println(testInfo.getDisplayName());
+        System.out.println(testInfo.getTestMethod().orElseGet(null).getName());
+        System.out.println(testInfo.getTestClass().orElseGet(null).getName());
+        System.out.println(testInfo.getTags());
+    }
+
+    @Test
+    @Tag("account")
+    @DisplayName("Probando nombre de la cuenta")
+    void accountNameTest() {
+
+        String expected = "Martín";
+        String real = this.account.getPerson();
+
+        assertEquals(expected, real);
+    }
+}
+````
+
+Como resultado obtendremos impreso los siguientes detalles:
+
+![test-info.png](./assets/test-info.png)
+
+Podemos usar el **TestReporter** para publicar la información del test en el log del propio JUnit, es decir usando la
+salida estandar del propio JUnit.
+
+````java
+public class AuxiliaryTest6 {
+    Account account;
+
+    @BeforeEach
+    void setUp(TestInfo testInfo, TestReporter testReporter) {
+        this.account = new Account("Martín", new BigDecimal("2000"));
+
+        System.out.println(testInfo.getDisplayName());
+        System.out.println(testInfo.getTestMethod().orElseGet(null).getName());
+        System.out.println(testInfo.getTestClass().orElseGet(null).getName());
+        System.out.println(testInfo.getTags());
+
+        testReporter.publishEntry("Ejecutando: " + testInfo.getDisplayName()); //<-- TestReporter
+    }
+    /* omitted code */
+}
+````
+
+![test-reporter.png](./assets/test-reporter.png)
+
