@@ -1059,3 +1059,96 @@ public class AuxiliaryTest {
     }
 }
 ````
+
+## Clases de test anidadas usando @Nested
+
+Nos permite agrupar nuestras pruebas usando classes anidadas, además se pueden usar los hooks **@BeforeEach y
+@AfterEach** en cada una de las clases, mientras que el **@BeforeAll y @AfterAll** solo es para la clase principal.
+
+````java
+public class AuxiliaryTest2 {
+
+    @Nested
+    class OperatingSystemTest {
+        @Test
+        @EnabledOnOs(OS.WINDOWS)
+        void onlyWindowsTest() {/*omitted*/}
+
+        @Test
+        @EnabledOnOs(OS.LINUX)
+        void onlyLinuxTest() {/*omitted*/}
+
+        @Test
+        @DisabledOnOs(OS.WINDOWS)
+        void noExecuteInWindows() {/*omitted*/}
+    }
+
+    @Nested
+    class JavaVersionTest {
+        @Test
+        @EnabledOnJre(JRE.JAVA_8)
+        void onlyJava8() {/*omitted*/}
+
+        @Test
+        @EnabledOnJre(JRE.JAVA_17)
+        void onlyJava17() {/*omitted*/}
+    }
+
+    @Nested
+    class SystemPropertiesTest {
+        @Test
+        @EnabledIfSystemProperty(named = "java.version", matches = "17.0.4.1")
+        void javaVersion() {/*omitted*/}
+
+        @Test
+        @DisabledIfSystemProperty(named = "os.arch", matches = ".*32.*")
+        void archOsVersion() {/*omitted*/}
+
+        @Test
+        @EnabledIfSystemProperty(named = "ENV", matches = "dev")
+        void devTest() {/*omitted*/}
+    }
+
+    @Nested
+    class EnvironmentVariablesTest {
+        @Test
+        @EnabledIfEnvironmentVariable(named = "JAVA_HOME", matches = "C:\\\\Program Files\\\\Java\\\\jdk-17.0.4.1")
+        void testJavaHome() {/*omitted*/}
+
+        @Test
+        @EnabledIfEnvironmentVariable(named = "NUMBER_OF_PROCESSORS", matches = "8")
+        void processorsNumber() {/*omitted*/}
+
+        @Test
+        @EnabledIfEnvironmentVariable(named = "ENVIRONMENT", matches = "dev")
+        void testEnvironmentDev() {/*omitted*/}
+
+        @Test
+        @EnabledIfEnvironmentVariable(named = "ENVIRONMENT", matches = "prod")
+        void testEnvironmentProd() {/*omitted*/}
+    }
+}
+````
+
+![nested](./assets/nested.png)
+
+Si por ejemplo, dentro de nuestras clases anidadas un método falla, en la consola se mostrará que falla dicho método y
+también su clase que la contiene. Por ejemplo, crearemos un test al que haremos fallar usando el método **fail()**:
+
+````java
+public class AuxiliaryTest2 {
+    /* omitted code */
+    @Nested
+    class SystemPropertiesTest {
+        /* omitted code */
+        @Test
+        void failTheTest() {
+            Assertions.fail("Fallando para ver el comportamiento");
+        }
+    }
+    /* omitted code */
+}
+````
+
+Como resultado de ejecutar la clase **AuxliaryTest2** nos mostrará en consola el siguente resultado:
+![nested-fail](./assets/nested-fail.png)
