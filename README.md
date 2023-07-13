@@ -1365,3 +1365,60 @@ public class AuxiliaryTest4 {
     }
 }
 ````
+
+---
+
+## Tagging tests con anotación @Tag
+
+Utilizamos estos tags o etiquetas para ejecutar las pruebas de forma selectiva, es decir, por ejemplo quiero ejecutar
+todas las pruebas que tengan el tag **param**.
+
+````java
+public class AuxiliaryTest5 {
+
+    @Tag("param")
+    @Test
+    void paramTest() {
+        System.out.println("Ejecutando test con tag param");
+    }
+
+    @Tag("param")
+    @Test
+    void paramTest2() {
+        System.out.println("Ejecutando test con tag param");
+    }
+
+    @Test
+    void noParamTest() {
+        System.out.println("Este test unitario no tiene el tag param!");
+    }
+
+    @Tag("account")
+    @Test
+    void accountTest() {
+        System.out.println("Ejecutando test de cuenta 1");
+    }
+
+    @Tag("account")
+    @Test
+    void accountTest2() {
+        System.out.println("Ejecutando test de cuenta 2");
+    }
+}
+````
+
+**NOTA**
+> Si tenemos **inner class** dentro de una clase test, es decir test anidados con **@Nested** y queremos ejecutar un
+> nested en específico, podríamos anotar la inner class con el **@Tag(..)** de esa manera solo se ejecutarían todos los
+> test contenidos dentro del inner class anotado con el tag seleccionado.
+
+### Ejecutando un tag (etiqueta) en particular desde IntelliJ IDEA
+
+- Menú desplegable Select, luego Edit Configurations...
+- En la sección de **Build and run**
+- Por defecto está seleccionado Class, nosotros seleccionaremos Tags
+- En el campo agregar las etiquetas a ejecutar, ejemplo: account
+
+Al ejecutar el test anterior, veremos que solo se ejecutarán los test que tienen el **@Tag("account")**:
+
+![tag.png](./assets/tag.png)
