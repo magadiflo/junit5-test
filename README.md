@@ -932,7 +932,7 @@ public class AuxiliaryTest {
 }
 ````
 
-Algunos resultados de imprimir las variables de entorno del sistema operativo:
+Algunos resultados de imprimir las **variables de entorno del sistema operativo:**
 
 ````
 USERDOMAIN_ROAMINGPROFILE : DESKTOP-EGDL8Q6
@@ -1152,3 +1152,61 @@ public class AuxiliaryTest2 {
 
 Como resultado de ejecutar la clase **AuxliaryTest2** nos mostrará en consola el siguente resultado:
 ![nested-fail](./assets/nested-fail.png)
+
+## Repitiendo pruebas con @RepeatedTest
+
+Con **@RepeatedTest** podemos repetir una prueba unitaria varias veces. Un caso en la que se podría aplicar esta
+anotación es cuando nuestro algoritmo a probar tiene **cierta aleatoriedad** donde un parámetro podría cambiar en cada
+ejecución. Lo podemos usar dentro de una clase test o dentro de un inner class test (nested). Además, cuando usamos
+el **@RepeatedTest** ya no usamos el **@Test**.
+
+````java
+public class AuxiliaryTest3 {
+    @RepeatedTest(value = 5)
+    void accountDebitTest() {
+        Account account = new Account("Martín", new BigDecimal("2000"));
+        account.debit(new BigDecimal("100"));
+
+        assertNotNull(account.getBalance());
+        assertEquals(1900D, account.getBalance().doubleValue());
+        assertEquals("1900", account.getBalance().toPlainString());
+    }
+}
+````
+
+Al ejecutar el test anterior obtendríamos el siguiente resultado:
+
+![repeated-test.png](./assets/repeated-test.png)
+
+Podemos cambiar el nombre de las repeticiones modificando la anotación **@RepeatedTest**:
+
+````java
+public class AuxiliaryTest3 {
+    @RepeatedTest(value = 5, name = "Repetición número {currentRepetition} de {totalRepetitions}")
+    void accountDebitTest() { /* omitted code*/ }
+}
+````
+
+El resultado sería de esta manera:
+
+![repeated-test-2.png](./assets/repeated-test-2.png)
+
+Podemos usar inyección de dependencia para obtener información del número de repetición en la que nos encontramos así
+aplicar alguna lógica de manera programática.
+
+ ````java
+public class AuxiliaryTest3 {
+    @RepeatedTest(value = 5, name = "Repetición número {currentRepetition} de {totalRepetitions}")
+    void accountDebitTest(RepetitionInfo info) {
+        if (info.getCurrentRepetition() == 3) {
+            System.out.println("Estamos en la repetición " + info.getCurrentRepetition());
+        }
+        Account account = new Account("Martín", new BigDecimal("2000"));
+        account.debit(new BigDecimal("100"));
+
+        assertNotNull(account.getBalance());
+        assertEquals(1900D, account.getBalance().doubleValue());
+        assertEquals("1900", account.getBalance().toPlainString());
+    }
+}
+ ````
