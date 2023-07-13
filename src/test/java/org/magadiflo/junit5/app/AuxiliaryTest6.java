@@ -4,8 +4,11 @@ import org.junit.jupiter.api.*;
 import org.magadiflo.junit5.app.models.Account;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTimeout;
 
 public class AuxiliaryTest6 {
     Account account;
@@ -33,4 +36,26 @@ public class AuxiliaryTest6 {
         assertEquals(expected, real);
     }
 
+    @Tag("timeout")
+    @Nested
+    class TimeOutTestExample {
+        @Test
+        @Timeout(5)
+        void timeOutTest() throws InterruptedException {
+            TimeUnit.SECONDS.sleep(6);
+        }
+
+        @Test
+        @Timeout(value = 500, unit = TimeUnit.MILLISECONDS)
+        void timeOutTest2() throws InterruptedException {
+            TimeUnit.SECONDS.sleep(6);
+        }
+
+        @Test
+        void assertionsTimeOutTest() {
+            assertTimeout(Duration.ofSeconds(6), () -> {
+                TimeUnit.SECONDS.sleep(5);
+            });
+        }
+    }
 }

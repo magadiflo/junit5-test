@@ -1486,3 +1486,65 @@ public class AuxiliaryTest6 {
 
 ![test-reporter.png](./assets/test-reporter.png)
 
+## Timeout en JUnit 5
+
+Podemos especificar la duración permitida en que puede ejecutarse un test con la anotación **@Timeout()**, dicha
+anotación **por defecto recibe un valor en segundos**, pero también podemos cambiar dicho valor, tal como se muestra en
+los ejemplos siguientes:
+
+````java
+public class AuxiliaryTest6 {
+
+    @BeforeEach
+    void setUp(TestInfo testInfo, TestReporter testReporter) {
+        this.account = new Account("Martín", new BigDecimal("2000"));
+
+        System.out.println(testInfo.getDisplayName());
+        System.out.println(testInfo.getTestMethod().orElseGet(null).getName());
+        System.out.println(testInfo.getTestClass().orElseGet(null).getName());
+        System.out.println(testInfo.getTags());
+
+        testReporter.publishEntry("Ejecutando: " + testInfo.getDisplayName());
+    }
+
+    @Tag("timeout")
+    @Nested
+    class TimeOutTestExample {
+        @Test
+        @Timeout(5)
+        void timeOutTest() throws InterruptedException {
+            TimeUnit.SECONDS.sleep(6);
+        }
+
+        @Test
+        @Timeout(value = 500, unit = TimeUnit.MILLISECONDS)
+        void timeOutTest2() throws InterruptedException {
+            TimeUnit.SECONDS.sleep(6);
+        }
+    }
+}
+````
+
+En el ejemplo anterior creamos una clase anidada **@Nested** para agrupar nuestros dos ejemplos de timeout, así que
+ejecutamos dicho tag para ver cuál es el resultado:
+
+![time-out.png](./assets/time-out.png)
+
+Podemos crear un test cuyo **TimeOut** sea más programático, por ejemplo usando el **Assertions.assertTimeout()**:
+
+````java
+public class AuxiliaryTest6 {
+    @Test
+    void assertionsTimeOutTest() {
+        assertTimeout(Duration.ofSeconds(5), () -> {
+            TimeUnit.SECONDS.sleep(6); //<-- Simula la demora de nuestro test
+        });
+    }
+}
+````
+
+Si ejecutamos el código anterior nos mostrará el siguiente error:
+
+````bash
+org.opentest4j.AssertionFailedError: execution exceeded timeout of 5000 ms by 1015 ms
+````
