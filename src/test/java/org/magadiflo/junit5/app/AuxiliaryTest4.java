@@ -55,6 +55,19 @@ public class AuxiliaryTest4 {
         assertTrue(account.getBalance().compareTo(BigDecimal.ZERO) > 0);
     }
 
+    @ParameterizedTest(name = "número {index} ejecutando con valor {argumentsWithNames}")
+    @CsvFileSource(resources = "/data2.csv")
+    void accountDebitCsvFileSourceTest2(String balance, String amount, String expected, String actual) {
+        Account account = new Account("Martín", new BigDecimal(balance));
+        account.debit(new BigDecimal(amount));
+        account.setPerson(actual);
+
+        assertNotNull(account.getBalance());
+        assertNotNull(account.getPerson());
+        assertEquals(expected, account.getPerson());
+        assertTrue(account.getBalance().compareTo(BigDecimal.ZERO) > 0);
+    }
+
     private static List<String> amountList() {
         return List.of("100", "200", "300", "500", "700", "1000", "2000");
     }

@@ -1332,3 +1332,36 @@ public class AuxiliaryTest4 {
     }
 }
 ````
+
+## Pruebas parametrizadas con @ParameterizedTest parte 3
+
+Podemos agregar más información en un archivo **csv** y usarlo para hacer pruebas, por ejemplo, crearemos un nuevo
+archivo en el **/resources** llamado **data2.csv** y agregaremos los siguientes datos:
+
+````
+200,100,Alicia,Alicha
+250,200,Pepe,Pepe
+300.50,300,María,María
+400,399,Carlos,Karlos
+750,700,Luca,Lucas
+1000.50,1000,Cata,Cata
+````
+
+Luego creamos nuestro test que consumirá dichos datos:
+
+````java
+public class AuxiliaryTest4 {
+    @ParameterizedTest(name = "número {index} ejecutando con valor {argumentsWithNames}")
+    @CsvFileSource(resources = "/data2.csv")
+    void accountDebitCsvFileSourceTest2(String balance, String amount, String expected, String actual) {
+        Account account = new Account("Martín", new BigDecimal(balance));
+        account.debit(new BigDecimal(amount));
+        account.setPerson(actual);
+
+        assertNotNull(account.getBalance());
+        assertNotNull(account.getPerson());
+        assertEquals(expected, account.getPerson());
+        assertTrue(account.getBalance().compareTo(BigDecimal.ZERO) > 0);
+    }
+}
+````
