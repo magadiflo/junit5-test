@@ -34,6 +34,7 @@ class AccountTest {
     }
 
     @Test
+    @Tag("account")
     @DisplayName("Probando nombre de la cuenta")
     void accountNameTest() {
         String expected = "Martín";
@@ -43,6 +44,7 @@ class AccountTest {
     }
 
     @Test
+    @Tag("account")
     @DisplayName("Probando el saldo de la cuenta")
     void balanceAccountTest() {
         assertEquals(2000D, this.account.getBalance().doubleValue());

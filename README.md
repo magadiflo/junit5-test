@@ -30,6 +30,144 @@ Creamos un proyecto java con maven desde nuestro ide IntelliJ IDEA. Luego **agre
   test es JUnit, que se usa para las pruebas, pero no es necesaria para que nuestro proyecto funcione.
 - Estamos trabajando con la versión 17 de java.
 
+---
+
+## Ejecutar pruebas sin el IDE, solo desde una terminal
+
+Existe un plugin de maven llamado **surefire** que nos permite ejecutar nuestras pruebas desde una terminal o consola.
+Aunque nosotros, la mayoría de las veces usaremos nuestro propio IDE **IntelliJ IDEA** para ejecutar nuestras pruebas,
+presionando ``Ctrl + Shift + F10`` sobre un test en específico o sobre toda la clase para que se ejecuten todas las
+pruebas, pero eso es cuando estamos desarrollando nuestra aplicación. Podríamos estar en un escenario donde tenemos que
+ejecutar nuestras pruebas **de forma remota** o de **forma local** donde no tengamos instalado un **IDE**, entonces es
+allí donde necesitamos ejecutar nuestras pruebas mediante una consola o terminal **sin la necesidad de un IDE.**
+
+Lo primero que debemos hacer es modificar el pom y agregar el plugin de maven:
+
+````xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>junit5-test</artifactId>
+    <!-- omitted tags -->
+    <dependencies>
+        <!-- omitted tags -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+````
+
+Si queremos ejecutar un **tag** en especial, debemos agregar la etiqueta **group**:
+
+````xml
+
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <version>2.22.2</version>
+    <!-- Ejecutará solo los test con tag account -->
+    <configuration>
+        <groups>account</groups>
+    </configuration>
+</plugin>
+````
+
+Una vez agregada el plugin podemos **ejecutar nuestros test** de la siguiente manera:
+
+1. Usando Maven desde el mismo IntelliJ IDEA:
+    - Maven/junit5-test/Lifecycle/test <-- Click derecho **Run junit5-test [test]**, ahora
+      como tenemos configurado que se ejecuten los test con tag **account** solo se ejecutarán 2
+      test con tag account, ya que tienen implementado el test, los otros test que tienen el tag
+      pero no están implementados no se contarán.
+      ![test-account-plugin.png](./assets/test-account-plugin.png)
+    - Importante, para ver el reporte, podemos ir a
+      **/target/surefire-reports/org.magadiflo.junit5.app.AuxiliaryTest.txt**
+
+
+2. Descargando maven y configurando las variables de entorno:
+    - **Instalando maven**
+        - Ir a la página de maven y descargar el **binario**: https://maven.apache.org/download.cgi
+        - En mi caso descargué el archivo: **apache-maven-3.9.3-bin.zip**
+        - Descomprimir el directorio que contiene y colocarlo en el disco c:/
+        - Nuestro archivo descomprimido quedaría así: ``C:\apache-maven-3.9.3``
+        - Ir a las variables de entorno del sistema operativo windows
+        - En **System variables** creamos una variable **MAVEN_HOME**, similar a cómo creamos la variable **JAVA_HOME**
+          para
+          java.
+        - El valor de maven home será la ruta de nuestro binario descargado: **MAVEN_HOME=C:\apache-maven-3.9.3**
+        - En **System variables** variable **Path**, le damos en editar y agregamos la parte faltante a nuestra ruta de
+          maven: **%MAVEN_HOME%\bin**. Finalmente tendríamos algo así:
+          ![maven-environment.png](./assets/maven-environment.png)
+        - Para ver si lo hemos instalado correctamente, cerrar los cmd abiertos y volver a abrirlos ejecutar el
+          siguiente comando: ``mvn -version``
+            ````bash
+            mvn -version
+        
+            Apache Maven 3.9.3 (21122926829f1ead511c958d89bd2f672198ae9f)
+            Maven home: C:\apache-maven-3.9.3
+            Java version: 17.0.4.1, vendor: Oracle Corporation, runtime: C:\Program Files\Java\jdk-17.0.4.1
+            Default locale: en_US, platform encoding: Cp1252
+            OS name: "windows 11", version: "10.0", arch: "amd64", family: "windows"
+            ````
+
+    - Ejecutando proyecto con maven instalado
+        - Vamos a la raíz del proyecto donde encontremos el **pom.xml**
+        - Copiar toda la ruta
+        - Abrir cmd y posicionarnos en dicha ruta
+        - Ejecutar: ``mvn test``
+        - **Nota:** en el **pom.xml** comentamos el  ``<groups>account</groups>`` para que se ejecuten todos los test y
+          no
+          solo aquellos que tengan el tag account.
+        - Como resultado observamos que podemos ejecutar los test sin necesidad de tener un IDE:
+
+        ````bash
+        mvn test
+        [INFO] Scanning for projects...
+        [INFO]
+        [INFO] -------------------------------------------------------
+        [INFO]  T E S T S
+        [INFO] -------------------------------------------------------
+        [INFO] Running org.magadiflo.junit5.app.AuxiliaryTest
+        Solo se ejecutará si la arquitectura del SO no es de 32bits
+        [WARNING] Tests run: 16, Failures: 0, Errors: 0, Skipped: 7, Time elapsed: 0.327 s - in org.magadiflo.junit5.app.AuxiliaryTest
+
+        [INFO] Running org.magadiflo.junit5.app.models.AccountTest
+        Inicializando las pruebas
+        =========================
+        Iniciando método
+        Finalizando método        
+        =========================
+        Finalizando las pruebas
+        [WARNING] Tests run: 6, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.012 s - in
+        org.magadiflo.junit5.app.models.AccountTest
+        [INFO] Running org.magadiflo.junit5.app.models.BankTest
+        [INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s - in
+        org.magadiflo.junit5.app.models.BankTest
+        [INFO]
+        [INFO] Results:
+        [INFO]
+        [WARNING] Tests run: 25, Failures: 0, Errors: 0, Skipped: 8
+        [INFO]
+        [INFO] ------------------------------------------------------------------------
+        [INFO] BUILD SUCCESS
+        [INFO] ------------------------------------------------------------------------
+        [INFO] Total time:  4.358 s
+        [INFO] Finished at: 2023-07-13T18:25:36-05:00
+        [INFO] ------------------------------------------------------------------------
+        ````
+
+---
+
 ## Creando la clase que usaremos para hacer pruebas
 
 Crearemos nuestra clase Account (Cuenta) con los atributos person y balance (saldo):
