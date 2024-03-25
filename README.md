@@ -1149,8 +1149,7 @@ sistema que creamos en apartados superiores:
 - En el apartado de ejecución del proyecto, clicamos en el select y seleccionamos: **Edit configurations...**
 
 - Se abrirá una ventana, en el lado izquierdo seleccionamos **AuxiliaryTest** y en la parte derecha, sección **Build an
-  run** observaremos una propiedad colocada -ea, solo le agregamos lo siguiente **-DENV=dev,** finalmente quedaría:
-  **-ea -DENV=dev**, observaremos un input **Environment variables**, allí escribimos nuestra variable de ambiente
+  run** observaremos un input **Environment variables**, allí escribimos nuestra variable de ambiente
   personalizada: ``ENVIRONMENT=dev`` y listo.
 
 - Finalmente, para ejecutar los test, debemos seleccionar **AuxiliaryTest** del select de configuraciones recientes.
